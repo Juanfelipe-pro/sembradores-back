@@ -39,8 +39,8 @@ async def run_async_migrations():
     )
     async with connectable.connect() as connection:
         await connection.run_sync(lambda c: context.configure(connection=c, target_metadata=target_metadata))
-        await connection.run_sync(lambda c: context.begin_transaction())
-        await connection.run_sync(lambda c: context.run_migrations())
+        async with connection.begin():
+            await connection.run_sync(lambda c: context.run_migrations())
     await connectable.dispose()
 
 def run_migrations_online():
